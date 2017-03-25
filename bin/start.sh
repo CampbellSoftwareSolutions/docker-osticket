@@ -13,11 +13,12 @@ php /data/bin/install.php
 echo Applying configuration file security
 chmod 644 /data/upload/include/ost-config.php
 
-mkdir /run/nginx
-chown -R www-data:www-data /run/nginx
-chown -R www-data:www-data /var/lib/nginx
-mkdir /var/log/php
-chown -R www-data:www-data /var/log/php
-
+if [ ! -d "/run/nginx" ]; then
+    mkdir /run/nginx
+    chown -R www-data:www-data /run/nginx
+    chown -R www-data:www-data /var/lib/nginx
+    mkdir /var/log/php
+    chown -R www-data:www-data /var/log/php
+fi
 #Launch supervisor to manage processes
 exec /usr/bin/supervisord -c /data/supervisord.conf

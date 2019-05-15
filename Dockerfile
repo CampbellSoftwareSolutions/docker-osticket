@@ -1,6 +1,6 @@
 # Deployment doesn't work on Alpine
 FROM php:7.2-cli AS deployer
-ENV OSTICKET_VERSION=1.11
+ENV OSTICKET_VERSION=1.12
 RUN set -x \
     && apt-get update \
     && apt-get install -y git-core \

@@ -21,6 +21,11 @@ ENV HOME=/data
 # setup workdir
 WORKDIR /data
 COPY --from=deployer /data/upload upload
+
+# Fix iconv bug (empty body when mail encoded in quoted-printable)
+RUN apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing gnu-libiconv
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+
 RUN set -x && \
     # requirements and PHP extensions
     apk add --no-cache --update \

@@ -1,0 +1,34 @@
+# Docker compose example for a complete osticket with mysql server and docker secrets for testing purposes.
+# DO NOT USE IN PRODUCTION WITHOUT MODIFICATION!
+#
+---
+version: "3.4"
+services:
+  mariadb:
+    image: mariadb
+    environment:
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticketsecret
+      MYSQL_ROOT_PASSWORD: osticketsecret
+    volumes:
+      - mysql_data:/var/lib/mysql
+  osticket:
+    image: rlieback/osticket
+    environment:
+      ADMIN_USERNAME: ostadmin
+      MYSQL_HOST: mariadb
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticketsecret
+      # Change to en_US or comment out for default language
+      LANGUAGE: en_US
+      INSTALL_SECRET: mysecret897j98uemlrk09eums09duskd9jpsrds
+      ADMIN_PASSWORD: osticketsecret
+      # SMTP_HOST: mymailserver.com
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:80"
+volumes:
+  mysql_data:

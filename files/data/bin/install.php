@@ -3,7 +3,7 @@
 // Portions (C) 2006-2015 osTicket
 
 //Configure settings from environmental variables
-$_SERVER['HTTP_ACCEPT_LANGUAGE'] = getenv("LANGUAGE") ?: "en-us";
+$_SERVER['HTTP_ACCEPT_LANGUAGE'] = getenv("LANG") ?: "en-us";
 
 $vars = array(
   'name'      => getenv("INSTALL_NAME")  ?: 'My Helpdesk',
@@ -16,6 +16,7 @@ $vars = array(
   'username'    => getenv("ADMIN_USERNAME")  ?: 'ostadmin',
   'passwd'      => getenv("ADMIN_PASSWORD")  ?: 'Admin1',
   'passwd2'     => getenv("ADMIN_PASSWORD")  ?: 'Admin1',
+  'lang_id'     => getenv("LANGUAGE")        ?: 'en_US',
 
   'prefix'   => getenv("MYSQL_PREFIX")              ?: 'ost_',
   'dbhost'   => getenv("MYSQL_HOST")                ?: 'mysql',
@@ -37,6 +38,36 @@ $vars = array(
   'siri'     => getenv("INSTALL_SECRET"),
   'config'   => getenv("INSTALL_CONFIG") ?: '/data/upload/include/ost-sampleconfig.php'
 );
+
+if ( getenv("ADMIN_PASSWORD_FILE") ) {
+    if ( file_exists(getenv("ADMIN_PASSWORD_FILE")) ) {
+        $vars['passwd'] = file_get_contents(getenv("ADMIN_PASSWORD_FILE"));
+        $vars['passwd2'] = file_get_contents(getenv("ADMIN_PASSWORD_FILE"));
+    } else {
+        err("Error: The file in ADMIN_PASSWORD_FILE doesn't exist!");
+    }
+}
+if ( getenv("MYSQL_PASSWORD_FILE") ) {
+    if ( file_exists(getenv("MYSQL_PASSWORD_FILE")) ) {
+        $vars['dbpass'] = file_get_contents(getenv("MYSQL_PASSWORD_FILE"));
+    } else {
+        err("Error: The file in MYSQL_PASSWORD_FILE doesn't exist!");
+    }
+}
+if ( getenv("SMTP_PASSWORD_FILE") ) {
+    if ( file_exists(getenv("SMTP_PASSWORD_FILE")) ) {
+        $vars['smtp_pass'] = file_get_contents(getenv("SMTP_PASSWORD_FILE"));
+    } else {
+        err("Error: The file in SMTP_PASSWORD_FILE doesn't exist!");
+    }
+}
+if ( getenv("INSTALL_SECRET_FILE") ) {
+    if (file_exists(getenv("INSTALL_SECRET_FILE"))) {
+        $vars['siri'] = file_get_contents(getenv("INSTALL_SECRET_FILE"));
+    } else {
+        err("Error: The file in INSTALL_SECRET_FILE doesn't exist!");
+    }
+}
 
 //Script settings
 define('CONNECTION_TIMEOUT_SEC', 180);
@@ -117,8 +148,8 @@ if (!$linked) {
   if (!getenv("MYSQL_HOST")) {
     err('Missing required environmental variable MYSQL_HOST');
   }
-  if (!getenv("MYSQL_PASSWORD")) {
-    err('Missing required environmental variable: MYSQL_PASSWORD');
+  if (!getenv("MYSQL_PASSWORD") && !getenv("MYSQL_PASSWORD_FILE")) {
+    err('Missing required environmental variable: MYSQL_PASSWORD or MYSQL_PASSWORD_FILE');
   }
 
   // Always set mysqli.default_port for osTicket db_connect

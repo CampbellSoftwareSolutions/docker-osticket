@@ -1,0 +1,74 @@
+# Docker stack example for a complete osticket with mysql server and docker secrets for testing purposes.
+# DO NOT USE IN PRODUCTION WITHOUT MODIFICATION!
+#
+# Docker secrets needs swarm
+#   docker swarm init
+# Create a secret with
+#   "printf "ThisIsADockerSecret" | docker secret create osticket.mysql_password -"
+# Run as docker stack
+#   docker stack deploy --compose-file docker-compose.yml osticket
+---
+version: "3.4"
+services:
+  mariadb:
+    image: mariadb
+    secrets:
+      - osticket.mysql_root_password
+      - osticket.mysql_password
+    environment:
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      # mariadb supports also docker secrets
+      MYSQL_PASSWORD_FILE: /run/secrets/osticket.mysql_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/osticket.mysql_root_password
+#      MYSQL_PASSWORD: osticketsecret
+#      MYSQL_ROOT_PASSWORD: osticketsecret
+    networks:
+      - database
+    volumes:
+    - mysql_data:/var/lib/mysql
+  osticket:
+    image: rlieback/osticket
+    secrets:
+      - osticket.admin_password
+      - osticket.mysql_password
+      - osticket.install_secret
+      - osticket.smtp_password
+    environment:
+      ADMIN_USERNAME: ostadmin
+      MYSQL_HOST: mariadb
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      # Change to en_US or comment out for default language
+      LANGUAGE: en_US
+      MYSQL_PASSWORD_FILE: /run/secrets/osticket.mysql_password
+      INSTALL_SECRET_FILE: /run/secrets/osticket.install_secret
+      ADMIN_PASSWORD_FILE: /run/secrets/osticket.admin_password
+      SMTP_PASSWORD_FILE: /run/secrets/osticket.smtp_password
+      # MYSQL_PASSWORD: osticket
+      # INSTALL_SECRET: mysecret897j98uemlrk09eums09duskd9jpsrds
+      # ADMIN_PASSWORD: admin
+      # SMTP_HOST: mymailserver.com
+    depends_on:
+      - mariadb
+    networks:
+      - database
+    ports:
+      - "8080:80"
+networks:
+  database:
+    driver: overlay
+    attachable: true
+volumes:
+  mysql_data:
+secrets:
+  osticket.admin_password:
+    external: true
+  osticket.mysql_password:
+    external: true
+  osticket.mysql_root_password:
+    external: true
+  osticket.smtp_password:
+    external: true
+  osticket.install_secret:
+    external: true

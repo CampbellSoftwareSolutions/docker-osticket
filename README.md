@@ -7,14 +7,14 @@ Docker image for running version 1.14.3 of [OSTicket](http://osticket.com/).
 
 This image has been created from the original docker-osticket image by [Petter A. Helset](mailto:petter@helset.eu).
 
-It has a few modifications:
+# Features
 
-  * Documentation added, hurray!
-  * Base OS image fixed to Alpine Linux
-  * AJAX issues fixed that made original image unusable
-  * Now designed to work with a linked [MySQL](https://registry.hub.docker.com/u/library/mysql/) docker container.
+  * Based on Alpine Linux
+  * Works with linked [MySQL](https://registry.hub.docker.com/u/library/mysql/) docker container.
   * Automates configuration file & database installation
   * EMail support
+  * Support for docker secrets
+  * Comes with almost all available plugins and languages
 
 OSTicket is being served by [nginx](http://wiki.nginx.org/Main) using [PHP-FPM](http://php-fpm.org/) with PHP 7.2.
 PHP7's [mail](http://php.net/manual/en/function.mail.php) function is configured to use [msmtp](http://msmtp.sourceforge.net/) to send out-going messages.
@@ -206,6 +206,14 @@ For example: `https://help.example.com/osticket`. Defaults to `http://localhost:
 This has no effect if the database has already been installed. In this case, you should change the Helpdesk URL in 
 *System Settings and Preferences* in the admin control panel.
 
+`LANGUAGE`
+
+Set the system language. Choose one of the following language codes. Default is `en_US`.
+
+`bg` `cd` `en_GB` `es_MX` `fi` `hi` `is` `km` `lv` `nl` `ro` `sq` `sw` `ur_IN` `zh_CN` `ar` `bn` `da` `en_US` `et` `fr` 
+`hr` `it` `ko` `mk` `no` `ru` `sr` `th` `ur_PK` `zh_TW` `ar_EG` `bs` `de` `es_AR` `eu` `gl` `hu` `ja` `mn` `pl` `sk` 
+`sr_CS` `tr` `az` `ca` `el` `es_ES` `fa` `he` `id` `ka` `lt` `ms` `pt_BR` `sl` `sv_SE` `uk` `vi`
+
 ## Database Installation Only
 
 The remaining environmental variables can be used as a convenience to provide defaults during the automated database
@@ -235,6 +243,17 @@ User name to use for automatically created administrative user. Defaults to 'ost
 `ADMIN_PASSWORD`
 
 Password to use for automatically created administrative user. Defaults to 'Admin1'.
+
+# Docker secrets and passwords from files
+
+Instead of the environment variables with clear text passwords the following variables can be set to file paths inside 
+the container to load passwords from these:
+
+`MYSQL_PASSWORD_FILE`, `INSTALL_SECRET_FILE`, `ADMIN_PASSWORD_FILE`, `SMTP_PASSWORD_FILE`
+
+This allows docker secrets where passwords are mounted under `/run/secrets/mydockersecretname`.
+
+A working example with external docker secret for docker swarm can be found in `docker-compose-swarm.yml` in the github repo.
 
 # Modifications
 
